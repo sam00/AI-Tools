@@ -211,7 +211,7 @@ def _cmd_setup(args: argparse.Namespace) -> int:
             "[tokentrim] 'tokentrim' is not on PATH; the config uses a "
             "'python -m tokentrim' fallback.\n"
             "            For a clean global command: pipx install "
-            '"git+https://github.com/sam00/AI-Tools.git"\n'
+            '"git+https://github.com/sam00/AI-TokenTrim.git"\n'
         )
 
     if args.write:

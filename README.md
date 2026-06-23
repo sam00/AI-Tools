@@ -17,6 +17,25 @@ TokenTrim compresses everything your AI agent reads — tool outputs, logs, RAG 
 >
 > Builds on established ideas in context compression — reversible caching, content-type routing, quality-gated pruning, and answer-token retention — with a fully dependency-free core, deterministic/testable compressors, a fidelity-based quality gate, a SimHash/sequence dedup engine, built-in secret redaction, a TF-IDF RAG ranker, transparent cost accounting, and a reference-based reversible store.
 
+## Why use this?
+
+**The problem it solves.** Most of what an AI agent reads is *low-density* — 5,000 identical log heartbeats around one `FATAL`, a 200-record JSON dump where 3 rows matter, a whole file when only the signatures do. That redundancy burns tokens, dollars, and latency on every call.
+
+**60-second quickstart.**
+```bash
+pipx install "git+https://github.com/sam00/AI-TokenTrim.git"
+tokentrim perf       # see the savings on sample workloads
+tokentrim doctor     # confirm install, extras, and config
+```
+
+**Example output (`tokentrim perf`).** Real numbers on the bundled sample workloads:
+
+![tokentrim perf — 89.6% fewer tokens across sample JSON / log / code / text](docs/perf.svg)
+
+**Who it's for.** Teams shipping LLM agents/apps who want lower bills and more usable context — usable as a Python library, a drop-in OpenAI-compatible proxy, or an MCP server.
+
+**What it is *not*.** Not a hosted service and not a model. It runs **locally** with a zero-dependency core, and compression is **reversible** — originals are cached and recoverable by reference id.
+
 ### Three focus areas
 
 | Focus | What we do |
@@ -27,7 +46,7 @@ TokenTrim compresses everything your AI agent reads — tool outputs, logs, RAG 
 
 ---
 
-## Why
+## The problem in one picture
 
 Every token your agent reads costs money and latency, and crowds the context window. Most of what agents read is *low-density*: 5,000 lines of identical log heartbeats around one `FATAL`, a 200-record JSON dump where 3 rows tell the story, an entire source file when only the signatures matter.
 
@@ -59,15 +78,15 @@ TokenTrim installs from this repo today (PyPI publish pending):
 
 ```bash
 # Global CLI — recommended for MCP / proxy (isolated, puts `tokentrim` on PATH)
-pipx install "git+https://github.com/sam00/AI-Tools.git"
+pipx install "git+https://github.com/sam00/AI-TokenTrim.git"
 
 # Into your project / venv (library use)
-pip install "git+https://github.com/sam00/AI-Tools.git"
+pip install "git+https://github.com/sam00/AI-TokenTrim.git"
 
 # With extras
-pip install "tokentrim[mcp]   @ git+https://github.com/sam00/AI-Tools.git"   # MCP server
-pip install "tokentrim[proxy] @ git+https://github.com/sam00/AI-Tools.git"   # proxy
-pip install "tokentrim[all]   @ git+https://github.com/sam00/AI-Tools.git"   # everything
+pip install "tokentrim[mcp]   @ git+https://github.com/sam00/AI-TokenTrim.git"   # MCP server
+pip install "tokentrim[proxy] @ git+https://github.com/sam00/AI-TokenTrim.git"   # proxy
+pip install "tokentrim[all]   @ git+https://github.com/sam00/AI-TokenTrim.git"   # everything
 ```
 
 Once published to PyPI this is simply `pip install tokentrim` (plus `[mcp]`,
@@ -134,16 +153,18 @@ tokentrim perf
 ```
 
 ```
-TokenTrim perf demo  (level=balanced)
+TokenTrim perf demo  (level=balanced, model=default, $2.50/Mtok)
 
-content       before     after     saved
-----------------------------------------
-json            ...       ...       ~90%
-log             ...       ...       ~80%
-code            ...       ...       ~55%
-text            ...       ...       ~45%
-----------------------------------------
-TOTAL           ...       ...       ~xx%
+content     before    after   saved   quality   $ saved
+-------------------------------------------------------
+json          7021      125   98.2%       rev   0.01724
+log           1171      320   72.7%       rev   0.00213
+code           231       99   57.1%       rev   0.00033
+text           717      403   43.8%      0.61   0.00078
+-------------------------------------------------------
+TOTAL         9140      947   89.6%             0.02048
+
+Projected savings @ 10k calls/day: $204.83/day  ·  $6144.75/month
 ```
 
 ---
@@ -240,6 +261,13 @@ tokentrim perf        # token + cost savings demo
 - [`REQUIREMENTS.md`](./REQUIREMENTS.md) — full product/engineering spec, prerequisites, setup, and IDE integration guide.
 - [`PUBLISHING.md`](./PUBLISHING.md) — step-by-step guide to publish this repo to GitHub (and optionally PyPI).
 - [`CHANGELOG.md`](./CHANGELOG.md) — release notes.
+
+## Related projects
+
+Part of a small suite of local-first AI-security tools:
+
+- **[AI-RedEye-harness](https://github.com/sam00/AI-RedEye-harness)** — Agentic SAST harness for AI-assisted vulnerability discovery with grounding, voting, SARIF, and CI/CD workflows.
+- **[AI-RedTeam-skill](https://github.com/sam00/AI-RedTeam-skill)** — Authorized AI red-team planning skill and framework mapper for MITRE ATT&CK, ATLAS, OWASP LLM Top 10, and NIST AI RMF.
 
 ## License
 
